@@ -15,7 +15,7 @@ st.write("Upload an audio clip to identify Ambulance, Firetruck, or Traffic soun
 # --- Constants & Google Drive Configuration ---
 # 1. Open your file in Drive -> Share -> "Anyone with the link"
 # 2. Copy the ID from the URL: https://drive.google.com/file/d/YOUR_ID_HERE/view
-GOOGLE_DRIVE_FILE_ID = 'https://drive.google.com/file/d/1lNNvX6lzPUQ398lAi91_S5359rDPR5Es/view?usp=sharing'
+GOOGLE_DRIVE_FILE_ID = '1lNNvX6lzPUQ398lAi91_S5359rDPR5Es'
 MODEL_PATH = "emergency_siren_classifier.onnx" 
 CLASS_NAMES = ['ambulance', 'firetruck', 'traffic']
 
