@@ -3,7 +3,7 @@ import numpy as np
 import librosa
 import os
 import tempfile
-import tensorflow as tf
+import onnxruntime as ort
 
 # --- Page Config ---
 st.set_page_config(page_title="Siren Detector", page_icon="🚨")
@@ -12,7 +12,7 @@ st.title("🚨 Emergency Siren Detection")
 st.write("Upload an audio clip to identify Ambulance, Firetruck, or Traffic sounds.")
 
 # --- Constants ---
-MODEL_PATH = "model.keras"   # Make sure this file exists in repo
+MODEL_PATH = "emergency_siren_classifier.onnx"
 CLASS_NAMES = ['ambulance', 'firetruck', 'traffic']
 
 
@@ -20,8 +20,8 @@ CLASS_NAMES = ['ambulance', 'firetruck', 'traffic']
 @st.cache_resource
 def load_model():
     try:
-        model = tf.keras.models.load_model(MODEL_PATH)
-        return model
+        session = ort.InferenceSession(MODEL_PATH)
+        return session
     except Exception as e:
         st.error(f"Model loading failed: {e}")
         return None
@@ -39,7 +39,8 @@ def extract_audio_features(uploaded_file):
         mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
         mfccs_scaled = np.mean(mfccs.T, axis=0)
 
-        return mfccs_scaled.reshape(1, -1)
+        # 🔴 ONNX needs float32
+        return mfccs_scaled.reshape(1, -1).astype(np.float32)
 
     finally:
         if os.path.exists(temp_path):
@@ -47,21 +48,25 @@ def extract_audio_features(uploaded_file):
 
 
 # --- UI ---
-model = load_model()
+session = load_model()
 
 uploaded_audio = st.file_uploader(
     "Choose an audio file",
     type=["wav", "mp3", "ogg", "flac", "m4a"]
 )
 
-if uploaded_audio is not None and model is not None:
+if uploaded_audio is not None and session is not None:
     st.audio(uploaded_audio)
 
     with st.spinner("Analyzing sound..."):
         try:
             features = extract_audio_features(uploaded_audio)
 
-            prediction_probs = model.predict(features)[0]
+            # 🔥 ONNX inference
+            input_name = session.get_inputs()[0].name
+            outputs = session.run(None, {input_name: features})
+
+            prediction_probs = outputs[0][0]
 
             predicted_idx = np.argmax(prediction_probs)
             confidence = prediction_probs[predicted_idx] * 100

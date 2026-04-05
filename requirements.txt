@@ -1,5 +1,5 @@
 streamlit
-numpy==1.24.3
-librosa==0.10.1
-tensorflow-cpu==2.15.0
+numpy
+librosa
+onnxruntime
 soundfile
