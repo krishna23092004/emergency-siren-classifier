@@ -1,6 +1,5 @@
 streamlit
 numpy
 librosa
-tensorflow
+tensorflow==2.15.0
 soundfile
-scipy
