@@ -3,3 +3,4 @@ numpy
 librosa
 onnxruntime
 soundfile
+resampy
