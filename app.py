@@ -3,8 +3,7 @@ import numpy as np
 import librosa
 import os
 import tempfile
-import onnxruntime as ort
-import gdown
+import tensorflow as tf
 
 # --- Page Config ---
 st.set_page_config(page_title="Siren Detector", page_icon="🚨")
@@ -13,35 +12,16 @@ st.title("🚨 Emergency Siren Detection")
 st.write("Upload an audio clip to identify Ambulance, Firetruck, or Traffic sounds.")
 
 # --- Constants ---
-GOOGLE_DRIVE_FILE_ID = '1lNNvX6lzPUQ398lAi91_S5359rDPR5Es'
-MODEL_PATH = "emergency_siren_classifier.onnx"
+MODEL_PATH = "model.keras"   # Make sure this file exists in repo
 CLASS_NAMES = ['ambulance', 'firetruck', 'traffic']
 
 
-# --- Model Loader ---
+# --- Load Model ---
 @st.cache_resource
-def load_siren_model():
-    if not os.path.exists(MODEL_PATH):
-        try:
-            with st.spinner("Downloading model..."):
-                gdown.download(
-                    id=GOOGLE_DRIVE_FILE_ID,
-                    output=MODEL_PATH,
-                    quiet=False,
-                    fuzzy=True
-                )
-
-            # 🔴 Check if file actually downloaded
-            if not os.path.exists(MODEL_PATH) or os.path.getsize(MODEL_PATH) == 0:
-                st.error("Model download failed or file is empty.")
-                return None
-
-        except Exception as e:
-            st.error(f"Download failed: {e}")
-            return None
-
+def load_model():
     try:
-        return ort.InferenceSession(MODEL_PATH)
+        model = tf.keras.models.load_model(MODEL_PATH)
+        return model
     except Exception as e:
         st.error(f"Model loading failed: {e}")
         return None
@@ -59,7 +39,7 @@ def extract_audio_features(uploaded_file):
         mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
         mfccs_scaled = np.mean(mfccs.T, axis=0)
 
-        return mfccs_scaled.reshape(1, -1).astype(np.float32)
+        return mfccs_scaled.reshape(1, -1)
 
     finally:
         if os.path.exists(temp_path):
@@ -67,22 +47,21 @@ def extract_audio_features(uploaded_file):
 
 
 # --- UI ---
-session = load_siren_model()
+model = load_model()
 
 uploaded_audio = st.file_uploader(
     "Choose an audio file",
     type=["wav", "mp3", "ogg", "flac", "m4a"]
 )
 
-if uploaded_audio is not None and session is not None:
+if uploaded_audio is not None and model is not None:
     st.audio(uploaded_audio)
 
-    with st.spinner("Analyzing sound signatures..."):
+    with st.spinner("Analyzing sound..."):
         try:
             features = extract_audio_features(uploaded_audio)
 
-            input_name = session.get_inputs()[0].name
-            prediction_probs = session.run(None, {input_name: features})[0][0]
+            prediction_probs = model.predict(features)[0]
 
             predicted_idx = np.argmax(prediction_probs)
             confidence = prediction_probs[predicted_idx] * 100

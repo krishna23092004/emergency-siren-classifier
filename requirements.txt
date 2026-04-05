@@ -1,5 +1,6 @@
 streamlit
-librosa
 numpy
-onnxruntime
-gdown
+librosa
+tensorflow
+soundfile
+scipy

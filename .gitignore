@@ -1,28 +1,24 @@
-# Python environment
-venv/
+# Python
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
 
-# Streamlit local config
-.streamlit/config.toml
+# Environment
+.env
+venv/
+.venv/
 
-# Audio Processing temporary files
+# Streamlit cache
+.streamlit/
+
+# Model files (optional: remove this if you WANT to upload model)
+*.h5
+*.keras
+
+# Temp files
 *.wav
 *.mp3
 *.ogg
 *.flac
-*.m4a
 
-# OS generated files
+# OS files
 .DS_Store
-Thumbs.db
-
-# Models (Ignore both the old Keras files and the downloaded ONNX model)
-*.keras
-*.h5
-emergency_siren_classifier.onnx
-
-# Data folders
-dataset/
-temp_audio/
