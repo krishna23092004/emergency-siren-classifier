@@ -4,11 +4,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Streamlit
+# Streamlit local config
 .streamlit/config.toml
 
 # Audio Processing temporary files
-# Ignores any temp files created during extraction
 *.wav
 *.mp3
 *.ogg
@@ -19,11 +18,11 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Models (Removing TensorFlow/Keras artifacts)
+# Models (Ignore both the old Keras files and the downloaded ONNX model)
 *.keras
 *.h5
-# emergency_siren_classifier.onnx  <-- Keep this UNCOMMENTED if you want to push the ONNX model to Git
+emergency_siren_classifier.onnx
 
-# Data
+# Data folders
 dataset/
 temp_audio/
