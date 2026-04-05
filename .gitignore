@@ -1,0 +1,25 @@
+# Python environment
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Streamlit
+.streamlit/config.toml
+
+# Audio Processing temporary files
+*.wav
+*.mp3
+*.ogg
+*.flac
+*.m4a
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Data and Models
+# Uncomment the line below if your model is >100MB
+# emergency_siren_classifier.onnx
+dataset/
+temp_audio/ 
